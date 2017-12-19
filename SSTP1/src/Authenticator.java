@@ -23,18 +23,17 @@ import Exceptions.*;
 public class Authenticator {
 
 	private Map<String, Account> accounts;
-	private String logged;
-	private static final String DIR=Authenticator.class.getProtectionDomain().getCodeSource().getLocation().toString().split(":")[1] + "database.txt";
+	private String logged,dir;
 	private static final String ALGO = "AES";
 	private static final byte[] keyValue = new byte[]{'S','E','G','U','R','A','C','A','S','O','F',
 														'T','W','A','R','E'};
 
-	public Authenticator(){
-
+	public Authenticator(String dir){
+		this.dir=dir;
 	}
 
 	public void constFile() throws FileNotFoundException {
-		File file = new File(DIR);
+		File file = new File(dir+"database.txt");
 		Scanner input = new Scanner(file);
 		accounts = new HashMap<String, Account>();
 		logged = input.nextLine();
@@ -50,13 +49,13 @@ public class Authenticator {
 		if (accounts.containsKey(name)) {
 			throw new AlreadyExistsException();
 		}
-		Path path = Paths.get(DIR);
+		Path path = Paths.get(dir+"database.txt");
 		String newAcc = name + "," + encrypt(pw) + ",false,false,0\n";
 		Files.write(path, newAcc.getBytes(), StandardOpenOption.APPEND);
 	}
 
 	private void writeToDatabase() throws IOException {
-		Path path = Paths.get(DIR);
+		Path path = Paths.get(dir+"database.txt");
 		String loggedAcc = logged+"\n";
 		Files.write(path,loggedAcc.getBytes());
 		Files.write(path,() -> accounts.entrySet()
@@ -137,7 +136,7 @@ public class Authenticator {
 		writeToDatabase();
 	}
 
-	public void change_pwd(String name, String pw) throws Exception {
+	public String change_pwd(String name, String pw) throws Exception {
 
 		Account acc;
 
@@ -145,9 +144,12 @@ public class Authenticator {
 			throw new UndefinedAccountException();
 		}
 		acc = accounts.get(name);
-		acc.setPassword(encrypt(pw));
+		String encPass = encrypt(pw);
+		acc.setPassword(encPass);
 
 		writeToDatabase();
+
+		return encPass;
 	}
 
 	public String encrypt(String Data) throws Exception {

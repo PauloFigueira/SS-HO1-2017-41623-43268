@@ -81,7 +81,9 @@ public class CreateUserServlet extends HttpServlet {
 	             out.println("</script>");
 			} else {
 				auth.createAccount(name, password1);
-				Logger.authenticated("Create User", "root");
+				String dir = getServletContext().getRealPath("/");
+				Logger logger = new Logger(dir);
+				logger.authenticated("Create User", session.getAttribute("USER").toString());
 				response.sendRedirect("home");
 			}
 		} catch (Exception e) {

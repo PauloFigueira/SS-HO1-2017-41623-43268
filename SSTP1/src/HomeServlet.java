@@ -63,7 +63,9 @@ public class HomeServlet extends HttpServlet {
 				if (session != null)
 					session.invalidate();
 				response.sendRedirect("login");
-				Logger.authenticated("Log Out",authUser.getName());
+				String dir = getServletContext().getRealPath("/");
+				Logger logger =new Logger(dir);
+				logger.authenticated("Log Out",authUser.getName());
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

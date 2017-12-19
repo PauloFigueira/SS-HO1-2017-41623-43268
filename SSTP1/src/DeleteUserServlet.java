@@ -38,7 +38,9 @@ public class DeleteUserServlet extends HttpServlet {
 				out.println("</script>");
 
 			} else {
-				Logger.authenticated("Delete User", authUser.getName());
+				String dir = getServletContext().getRealPath("/");
+				Logger logger = new Logger(dir);
+				logger.authenticated("Delete User", authUser.getName());
 				request.getRequestDispatcher("/deleteUser.jsp").forward(request, response);
 			}
 

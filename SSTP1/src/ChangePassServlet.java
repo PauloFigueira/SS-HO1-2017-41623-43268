@@ -70,9 +70,11 @@ public class ChangePassServlet extends HttpServlet {
 				out.println("</script>");
 			} else {
 				auth.constFile();
-				auth.change_pwd(name, password1);
-				request.getSession().setAttribute("PWD",auth.encrypt(password1));
-				Logger.authenticated("Change Password",authUser.getName());
+				String newEncPass = auth.change_pwd(name, password1);
+				session.setAttribute("PWD",newEncPass);
+				String dir = getServletContext().getRealPath("/");
+				Logger logger = new Logger(dir);
+				logger.authenticated("Change Password", authUser.getName());
 				response.sendRedirect("home");
 				
 			}

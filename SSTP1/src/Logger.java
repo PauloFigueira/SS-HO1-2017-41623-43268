@@ -6,16 +6,19 @@ import java.nio.file.StandardOpenOption;
 
 public class Logger {
 
-    private static final String DIR=Logger.class.getProtectionDomain().getCodeSource().getLocation().toString().split(":")[1] +"/log.txt";
+    //private static final String DIR="/home/x3me/Desktop/5-1SEM/SegSoft/";
+    private String dir;
+    public Logger(String dir){
+        this.dir=dir;
+    }
+    public  void authenticated(String operation,String name) throws IOException {
 
-    public static void authenticated(String operation,String name) throws IOException {
-
-        Path path = Paths.get(DIR);
+        Path path = Paths.get(dir+"log.txt");
         if(!Files.exists(path)){
             path.toFile().createNewFile();
         }
 
         String log = operation+"-"+name+"\n";
-        Files.write(Paths.get(DIR),log.getBytes(), StandardOpenOption.APPEND);
+        Files.write(Paths.get(dir+"log.txt"),log.getBytes(), StandardOpenOption.APPEND);
     }
 }

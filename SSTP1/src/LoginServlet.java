@@ -1,3 +1,4 @@
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -25,8 +26,8 @@ import Exceptions.UndefinedAccountException;
 @WebServlet("/login")
 public class LoginServlet extends HttpServlet {
 	
-	private static final String DIR = Authenticator.class.getProtectionDomain().getCodeSource().getLocation().toString().split(":")[1] + "database.txt";
-;
+	//private static final String DIR = Authenticator.class.getProtectionDomain().getCodeSource().getLocation().toString().split(":")[1] + "database.txt";
+
 
     private static final long serialVersionUID = 1L;
 
@@ -47,14 +48,16 @@ public class LoginServlet extends HttpServlet {
             throws ServletException, IOException {
         HttpSession session = request.getSession(false);
         if(session == null || !session.getAttributeNames().hasMoreElements()){
-            Path path = Paths.get(DIR);
+            String dir = getServletContext().getRealPath("/")+ File.separator;
+            Path path = Paths.get(dir + "database.txt");
             if(Files.exists(path)) {
-                Authenticator auth = new Authenticator();
+                Authenticator auth = new Authenticator(dir);
                 auth.constFile();
                 if (!auth.getLogged().equals("none")) {
                     Account logged = auth.getAccounts().get(auth.getLogged());
                     auth.logout(logged);
-                    Logger.authenticated("Log Out", logged.getName());
+                    Logger logger = new Logger(dir);
+                    logger.authenticated("Log Out", logged.getName());
                 }
             }
             request.getRequestDispatcher("/login.jsp").forward(request, response);
@@ -69,12 +72,12 @@ public class LoginServlet extends HttpServlet {
      */
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        System.out.println(DIR);
-    	Path path = Paths.get(DIR);
-		if (!Files.exists(path)) {
+        String dir = getServletContext().getRealPath("/")+ File.separator;
+        Path path = Paths.get(dir + "/database.txt");
+        if (!Files.exists(path)) {
             List<String> lines = null;
             try {
-                lines = Arrays.asList("none", "root,"+new Authenticator().encrypt("pw")+",false,false,0");
+                lines = Arrays.asList("none", "root,"+new Authenticator(dir).encrypt("pw")+",false,false,0");
                 Files.write(path, lines, Charset.forName("UTF-8"));
             } catch (Exception e) {
                 e.printStackTrace();
@@ -82,7 +85,7 @@ public class LoginServlet extends HttpServlet {
 		}
         try {
         	
-            Authenticator auth = new Authenticator();
+            Authenticator auth = new Authenticator(dir);
             auth.constFile();
             String name = request.getParameter("username");
             String password = auth.encrypt(request.getParameter("password"));
@@ -94,7 +97,8 @@ public class LoginServlet extends HttpServlet {
             session.setMaxInactiveInterval(600);
             response.sendRedirect("home");
 
-            Logger.authenticated("Log In",authUser.getName());
+            Logger logger = new Logger(dir);
+            logger.authenticated("Log In", authUser.getName());
 
         } catch (Exception e) {
             PrintWriter out =response.getWriter();
